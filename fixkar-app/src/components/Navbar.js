@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import logo from '../assets/fix-removebg-preview.png';
 
 function Navbar() {
   
   const [user, setUser] = useState(null);
- 
+  const location = useLocation()
    useEffect(() => {
      // Get user info from localStorage
      const storedUser = JSON.parse(localStorage.getItem('user'));
@@ -21,6 +21,20 @@ function Navbar() {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+  const scrollToAbout = (e) => {
+    e.preventDefault()
+
+    if (location.pathname === "/") {
+      // If on home page, scroll to the about section
+      const aboutSection = document.getElementById("about")
+      if (aboutSection) {
+        aboutSection.scrollIntoView({ behavior: "smooth" })
+      }
+    } else {
+      // If not on home page, navigate to home and then scroll
+      window.location.href = "/#about"
+    }
+  }
   return (
     <>
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
@@ -35,7 +49,7 @@ function Navbar() {
 
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/about">About Us</Link></li>
+          <li><Link to="/about" onClick={scrollToAbout}>About Us</Link></li>
           <li><Link to="/filters">Filters</Link></li>
           <li><Link to="/contact">Contact</Link></li>
         </ul>
