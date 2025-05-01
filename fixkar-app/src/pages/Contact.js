@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {contactAPI} from '../utils/api';
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -6,7 +7,11 @@ function Contact() {
     email: '',
     message: ''
   });
-  
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -15,20 +20,28 @@ function Contact() {
     });
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    alert('Message sent successfully!');
-    
-    // Reset form
+    setLoading(true);
+    setError(null);
+    setStatus(null);
+
+    try{
+      const response = await contactAPI.createMessage(formData);
+    setStatus('Message sent successfully!');
     setFormData({
       name: '',
       email: '',
       message: ''
     });
-  };
-  
+  } catch (err) {
+    console.error('Error submitting message:', err);
+    setError(err.response?.data?.message || 'Failed to submit message');
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <section className="formsFormat">
       <h2>Contact Us</h2>
@@ -58,6 +71,7 @@ function Contact() {
         <label>Message:</label>
         <textarea 
           name="message"
+          type="message"
           value={formData.message}
           onChange={handleChange}
           placeholder="Your Message" 

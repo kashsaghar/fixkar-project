@@ -89,7 +89,7 @@ function Filters() {
           console.log("Using mock data for services and categories")
         } else {
           // Fetch real data from API with SQL queries
-          const providersResponse = await servicesAPI.getAllServices()
+          const providersResponse = await servicesAPI.getAllServices(filters)
           providersData = providersResponse
 
           const categoriesResponse = await categoriesAPI.getAllCategories()

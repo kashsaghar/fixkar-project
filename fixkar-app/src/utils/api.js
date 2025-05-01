@@ -124,7 +124,7 @@ export const filtersAPI = {
           queryParams.append(key, value);
         }
       }
-      const response = await api.get('/filters?${queryParams.toString()}');
+      const response = await api.get(`/filters?${queryParams.toString()}`);
       return response.data;
     } catch (error) {
       console.error("Error fetching filtered services:", error);
@@ -151,6 +151,35 @@ export const filtersAPI = {
   }
 };
 
+// Locations API calls
+export const locationsAPI = {
+  getAllLocations: async () => {
+    try {
+      // First try to get locations from filter options
+      const filterOptions = await filtersAPI.getFilterOptions();
+      if (filterOptions && filterOptions.locations && filterOptions.locations.length > 0) {
+        return filterOptions.locations;
+      }
+      
+      // Fallback to direct API call if filter options don't have locations
+      const response = await api.get('/locations');
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+      
+      // Fallback to hardcoded locations if API fails
+      return [
+        "Clifton", "Defence", "Gulshan-e-Iqbal", "Gulistan-e-Johar",
+        "North Nazimabad", "Federal B Area", "Saddar", "Malir",
+        "Korangi", "Landhi", "Orangi Town", "Nazimabad",
+        "PECHS", "Bahadurabad", "Tariq Road", "Shahrah-e-Faisal",
+        "Liaquatabad", "North Karachi", "Shah Faisal Colony",
+        "Model Colony", "Kemari", "Lyari", "Baldia Town",
+        "Bin Qasim Town", "Gadap Town"
+      ];
+    }
+  }
+};
 
 // Bookings API calls
 export const bookingsAPI = {
@@ -210,6 +239,19 @@ export const reviewsAPI = {
       throw error.response?.data || { message: 'Server error' };
     }
   }
+};
+
+//contact api calls
+export const contactAPI = {
+  createMessage: async (MessageData) => {
+    try{
+    const response = await api.post('/contact', MessageData);
+    return response.data;
+  }
+  catch(error){
+    throw error.response?.data || { message: 'Server error' };
+  }
+}
 };
 
 // Complaints API calls

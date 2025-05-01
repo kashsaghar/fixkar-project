@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import api from '../utils/api';
+import api, { filtersAPI } from '../utils/api';
 
 function ServiceForm() {
   const location = useLocation();
@@ -8,6 +8,7 @@ function ServiceForm() {
   const navigate = useNavigate();
   const isEditMode = !!id;
   const [categories, setCategories] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fetchingData, setFetchingData] = useState(isEditMode);
@@ -19,10 +20,21 @@ function ServiceForm() {
     description: '',
     price: '',
     duration_minutes: 60,
-    is_available: true
+    is_available: true,
+    location: '',
   });
   
-  // Fetch user data and categories on component mount
+  const defaultLocations = [
+    "Clifton", "Defence", "Gulshan-e-Iqbal", "Gulistan-e-Johar",
+    "North Nazimabad", "Federal B Area", "Saddar", "Malir",
+    "Korangi", "Landhi", "Orangi Town", "Nazimabad",
+    "PECHS", "Bahadurabad", "Tariq Road", "Shahrah-e-Faisal",
+    "Liaquatabad", "North Karachi", "Shah Faisal Colony",
+    "Model Colony", "Kemari", "Lyari", "Baldia Town",
+    "Bin Qasim Town", "Gadap Town"
+  ];
+  
+  // Fetch user data, categories, and locations on component mount
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -42,16 +54,33 @@ function ServiceForm() {
         const categoriesResponse = await api.get('/categories');
         setCategories(categoriesResponse.data);
         
+        // Fetch locations
+        try {
+          const filterOptions = await filtersAPI.getFilterOptions();
+          if (filterOptions && filterOptions.locations && filterOptions.locations.length > 0) {
+            setLocations(filterOptions.locations);
+            console.log("Locations loaded from API:", filterOptions.locations);
+          } else {
+            console.log("No locations from API, using default list");
+            setLocations(defaultLocations);
+          }
+        } catch (locErr) {
+          console.error('Error fetching locations:', locErr);
+          console.log("Using default locations due to error");
+          setLocations(defaultLocations);
+        }
+
         // If we have service data in location state, use that
         if (location.state?.service) {
-          const { title, category_id, description, price, duration_minutes, is_available } = location.state.service;
+          const { title, category_id, description, price, duration_minutes, is_available, location: serviceLocation } = location.state.service;
           setFormData({
             title,
             category_id,
             description,
             price,
             duration_minutes,
-            is_available
+            is_available,
+            location: serviceLocation || ''
           });
         } 
         // Otherwise, if in edit mode, fetch the service data
@@ -66,14 +95,14 @@ function ServiceForm() {
               description: serviceData.description,
               price: serviceData.price,
               duration_minutes: serviceData.duration_minutes,
-              is_available: serviceData.is_available
+              is_available: serviceData.is_available,
+              location: serviceData.location || ''
             });
           } catch (serviceErr) {
             console.error('Error fetching service data:', serviceErr);
             setError(serviceErr.response?.data?.message || 'Failed to fetch service data');
           }
         }
-  
         setLoading(false);
 
       } catch (err) {
@@ -237,6 +266,25 @@ function ServiceForm() {
           />
           <label htmlFor="is_available">Service is currently available</label>
         </div>
+
+        <div className="form-group">
+          <label htmlFor="location">Location:</label>
+          <select
+            id="location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            required
+            className="form-control"
+          >
+            <option value="">Select a Location</option>
+            {locations.map((location, index) => (
+              <option key={index} value={location}>
+                {location}
+              </option>
+            ))}
+          </select>
+        </div>
         
         <div className="form-group provider-info">
           <p><strong>Provider:</strong> {user?.name}</p>
@@ -244,7 +292,7 @@ function ServiceForm() {
         </div>
         
         <button type="submit" className="servicesubmit" disabled={loading}>
-          {loading ? (isEditMode ? 'Updating...' : 'Creating...') : ( {isEditMode} ? 'Update Service' : 'Create Service')}
+          {loading ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Service' : 'Create Service')}
         </button>
       </form>
     </section>
