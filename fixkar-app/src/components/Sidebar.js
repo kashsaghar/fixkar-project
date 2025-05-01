@@ -40,7 +40,7 @@ function Sidebar({ isOpen, toggleSidebar }) {
               <Link to="/add-service" onClick={toggleSidebar}>Add Service</Link>
             </li>
             <li>
-              <Link to="/book-service" onClick={toggleSidebar}>Book Service</Link>
+              <Link to="/filters" onClick={toggleSidebar}>Book Service</Link>
             </li>
             <li>
               <Link to="/my-services" onClick={toggleSidebar}>My Services</Link>

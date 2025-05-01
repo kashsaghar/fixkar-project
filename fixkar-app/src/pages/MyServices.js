@@ -72,7 +72,7 @@ function MyServices() {
     }
     
     try {
-      await api.delete(`/services/${serviceId}`);
+      await api.delete(`services/:id`);
       
       // Remove the service from the state
       setServices(services.filter(service => service.service_id !== serviceId));

@@ -10,7 +10,7 @@ import ServiceForm from './pages/ServiceForm';
 import Auth from './pages/Auth';
 import Profile from './pages/Profile';
 import Settings from './pages/Settings';
-import BookingForm from './pages/BookingForm';
+// import BookingForm from './pages/BookingForm';
 import MyBookings from './pages/MyBookings';
 import ReviewForm from './pages/ReviewForm';
 import ComplaintForm from './pages/ComplaintForm';
@@ -56,8 +56,8 @@ function AppContent() {
           {/* Service seeker routes */}
           <Route path="/services" element={<Filters />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
-          <Route path="/book-service" element={<BookingForm />} />
-          <Route path="/book/:serviceId" element={<BookingForm />} />
+          {/* <Route path="/book-service" element={<BookingForm />} /> */}
+          {/* <Route path="/book/:serviceId" element={<BookingForm />} /> */}
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/review/:bookingId" element={<ReviewForm />} />
           <Route path="/complaint/:bookingId" element={<ComplaintForm />} />

@@ -1,28 +1,39 @@
-const express = require('express');
-const router = express.Router();
-const connect = require('../db');
-const oracledb = require('oracledb');
-
+const express = require("express")
+const router = express.Router()
+const connect = require("../db")
+const oracledb = require("oracledb")
 
 // GET all categories
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
+  let conn
   try {
-    const conn = await connect();
-    const result = await conn.execute(`SELECT * FROM categories ORDER BY name`);
+    conn = await connect()
     
-    // Format the results
-    const categories = result.rows.map(row => ({
-      category_id: row[0],
-      name: row[1],
-      description: row[2]
-    }));
-    
-    res.json(categories);
-    await conn.close();
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
+    const result = await conn.execute(
+      `SELECT category_id, name, description FROM categories ORDER BY name`,
+      [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    )
 
-module.exports = router;
+    const categories = result.rows.map(row => ({
+      category_id: row.CATEGORY_ID,
+      name: row.NAME,
+      description: row.DESCRIPTION
+    }))
+
+    res.json(categories)
+  } catch (err) {
+    console.error("Error fetching categories:", err)
+    res.status(500).json({ error: err.message })
+  } finally {
+    if (conn) {
+      try {
+        await conn.close()
+      } catch (err) {
+        console.error("Error closing connection:", err)
+      }
+    }
+  }
+})
+
+module.exports = router

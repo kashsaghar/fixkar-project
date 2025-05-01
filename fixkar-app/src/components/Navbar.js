@@ -40,7 +40,6 @@ function Navbar() {
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
 
       <nav className="active">
-
         <svg className="side-bar-icon" focusable="false" viewBox="0 0 24 24" width="24" height="24" onClick={toggleSidebar} style={{ cursor: 'pointer' }}><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
         <span className="bn_logo">
           <img className="logo" src={logo || "/placeholder.svg"} alt="Logo" width="40" height="50" />
@@ -49,7 +48,11 @@ function Navbar() {
 
         <ul className="nav-links">
           <li><Link to="/">Home</Link></li>
-          <li><Link to="/about" onClick={scrollToAbout}>About Us</Link></li>
+          <li>
+            <a href="#about" onClick={scrollToAbout}>
+              About Us
+            </a>
+          </li>
           <li><Link to="/filters">Filters</Link></li>
           <li><Link to="/contact">Contact</Link></li>
         </ul>

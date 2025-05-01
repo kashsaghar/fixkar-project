@@ -113,26 +113,44 @@ export const servicesAPI = {
     }
   },
 
+};
+// Filters API calls
+export const filtersAPI = {
   getFilteredServices: async (filters) => {
     try {
-      // Convert filters to query parameters
-      const queryParams = new URLSearchParams()
-
+      const queryParams = new URLSearchParams();
       for (const [key, value] of Object.entries(filters)) {
         if (value !== "" && value !== null && value !== undefined) {
-          queryParams.append(key, value)
+          queryParams.append(key, value);
         }
       }
-
-      const response = await api.get(`/services/filter?${queryParams.toString()}`)
-      console.log("Filtered services fetched successfully")
-      return response.data
+      const response = await api.get('/filters?${queryParams.toString()}');
+      return response.data;
     } catch (error) {
-      console.error("Error fetching filtered services:", error)
-      throw error
+      console.error("Error fetching filtered services:", error);
+      throw error.response?.data || { message: 'Server error' };
     }
   },
+
+  getFilterOptions: async () => {
+    try {
+      const response = await api.get('/filters/options');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Server error' };
+    }
+  },
+  
+  getStatistics: async () => {
+    try {
+      const response = await api.get('/filters/stats');
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Server error' };
+    }
+  }
 };
+
 
 // Bookings API calls
 export const bookingsAPI = {
