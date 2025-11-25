@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import {servicesAPI , filtersAPI , categoriesAPI, mockServices, mockCategories, useMockData } from "../utils/api"
+import { servicesAPI, filtersAPI, locationsAPI, categoriesAPI, mockServices, mockCategories, useMockData } from "../utils/api"
 import api from '../utils/api';
 
 function Filters() {
@@ -16,6 +16,8 @@ function Filters() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showFilters, setShowFilters] = useState(false)
+  const [bookingInProgress, setBookingInProgress] = useState(false)
+
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState("rating")
   const providersPerPage = 5
@@ -121,6 +123,65 @@ function Filters() {
     applyFilters()
     updateActiveFilters()
   }, [filters, providers, sortBy])
+
+
+   // Handle booking when "Book Now" is clicked
+   const handleBookNow = async (serviceId) => {
+    try {
+      // Check if user is logged in
+      const token = localStorage.getItem("token")
+      if (!token) {
+        // Redirect to auth page if not logged in
+        navigate("/auth")
+        return
+      }
+
+      // Show booking in progress
+      setBookingInProgress(true)
+
+      // IMPORTANT: Using a timeout to simulate API call
+      // In a real app, this would be an actual API call
+      setTimeout(() => {
+        try {
+          // Create a mock booking response
+          const mockBookingResponse = {
+            booking_id: `booking-${Date.now()}`,
+            service_id: serviceId,
+            status: "pending",
+            scheduled_time: new Date().toISOString(),
+            address: "User's address",
+            total_amount: providers.find((p) => p.service_id === serviceId)?.price || 1000,
+            provider_name: providers.find((p) => p.service_id === serviceId)?.provider_name || "Service Provider",
+            service_title: providers.find((p) => p.service_id === serviceId)?.title || "Service",
+            notes: "",
+          }
+
+          // Store the new booking ID in localStorage to highlight it on the bookings page
+          localStorage.setItem("newBookingId", mockBookingResponse.booking_id)
+
+          // Also store the booking data for display on the MyBookings page
+          // This is a workaround since we don't have a real backend
+          const existingBookings = JSON.parse(localStorage.getItem("mockBookings") || "[]")
+          existingBookings.push(mockBookingResponse)
+          localStorage.setItem("mockBookings", JSON.stringify(existingBookings))
+
+          // Reset booking in progress
+          setBookingInProgress(false)
+
+          // Redirect to the bookings page
+          navigate("/my-bookings")
+        } catch (innerErr) {
+          console.error("Error in booking process:", innerErr)
+          setError("An error occurred during booking. Please try again.")
+          setBookingInProgress(false)
+        }
+      }, 1000) // Simulate a 1-second API call
+    } catch (err) {
+      console.error("Error creating booking:", err)
+      setError("An error occurred while creating your booking.")
+      setBookingInProgress(false)
+    }
+  }
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -627,8 +688,25 @@ function Filters() {
                     )}
 
                     <div className="provider-actions">
-                      <button className="view-details">View Details</button>
-                      <button className="book-now">Book Now</button>
+                    <button
+                        className="view-details"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate(`/services/${provider.service_id}`)
+                        }}
+                      >
+                        View Details
+                      </button>
+                      <button
+                        className="book-now"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleBookNow(provider.service_id)
+                        }}
+                        disabled={bookingInProgress}
+                      >
+                        {bookingInProgress ? "Booking..." : "Book Now"}
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -640,6 +718,16 @@ function Filters() {
           </div>
         </div>
       </div>
+
+       {/* Booking in progress overlay */}
+       {bookingInProgress && (
+        <div className="booking-overlay">
+          <div className="booking-spinner">
+            <div className="spinner"></div>
+            <p>Creating your booking...</p>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

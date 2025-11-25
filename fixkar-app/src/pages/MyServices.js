@@ -20,7 +20,7 @@ function MyServices() {
           return;
         }
         
-        if (userResponse.data.role !== 'provider' && userResponse.data.role !== 'admin') {
+        if (userResponse.data.role !== 'provider') {
           navigate('/');
           return;
         }

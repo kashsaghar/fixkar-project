@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import Sidebar from './Sidebar';
+import Sidebar from './sidebar/Sidebar';
 import logo from '../assets/fix-removebg-preview.png';
 
 function Navbar() {
@@ -17,6 +17,7 @@ function Navbar() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isLoggedIn = !!localStorage.getItem('token') && user != null;
+  // const isLoggedIn = !!localStorage.getItem('token');
   
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);

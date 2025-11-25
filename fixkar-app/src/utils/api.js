@@ -153,6 +153,7 @@ export const filtersAPI = {
 
 // Locations API calls
 export const locationsAPI = {
+
   getAllLocations: async () => {
     try {
       // First try to get locations from filter options

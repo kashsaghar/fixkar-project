@@ -27,6 +27,7 @@ CREATE TABLE services (
   provider_id NUMBER NOT NULL,
   category_id NUMBER NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  location  VARCHAR2(255),
   FOREIGN KEY (provider_id) REFERENCES users(user_id),
   FOREIGN KEY (category_id) REFERENCES categories(category_id)
 );

@@ -455,7 +455,8 @@ input:checked + .slider:before {
 body {
   font-family: "Open Sans", sans-serif;
   overflow-x: hidden;
-  background-image: radial-gradient(rgb(78, 91, 142), rgb(37, 23, 96));
+    background-image: radial-gradient(rgb(78, 91, 142), rgb(37, 23, 96));
+  /* background-image: radial-gradient(rgb(58, 71, 123), rgb(21, 15, 48)); */
 }
 
 nav {
@@ -2511,5 +2512,108 @@ nav > svg {
   align-items: center;
 }
 
+/* Add these styles to your App.css file */
 
+/* Highlight for new booking */
+.highlight-new-booking {
+  border: 2px solid #3498db !important;
+  box-shadow: 0 0 15px rgba(52, 152, 219, 0.3) !important;
+  position: relative;
+}
 
+.new-booking-badge {
+  background-color: #3498db;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  margin-left: 10px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.7;
+  }
+}
+
+/* Booking confirmation modal */
+.booking-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.booking-modal-content {
+  background-color: rgba(76, 87, 130, 0.95);
+  border-radius: 10px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  color: white;
+}
+
+.booking-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
+}
+
+.booking-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.booking-modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.booking-modal-body {
+  margin-bottom: 1.5rem;
+}
+
+.booking-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.booking-modal-footer button {
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.booking-modal-footer .btn-cancel {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.booking-modal-footer .btn-confirm {
+  background-color: #3498db;
+  color: white;
+}

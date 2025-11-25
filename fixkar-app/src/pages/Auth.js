@@ -40,8 +40,8 @@ const Auth = () => {
     try {
       if (isLogin) {
         // Login
-        const { email, password } = formData;
-        const data = await authAPI.login(email, password);
+        const { email, password, role } = formData;
+        const data = await authAPI.login(email, password, role);
         
         // Save token and user data
         localStorage.setItem('token', data.token);

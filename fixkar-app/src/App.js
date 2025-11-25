@@ -57,7 +57,9 @@ function AppContent() {
           <Route path="/services" element={<Filters />} />
           <Route path="/services/:serviceId" element={<ServiceDetails />} />
           {/* <Route path="/book-service" element={<BookingForm />} /> */}
-          {/* <Route path="/book/:serviceId" element={<BookingForm />} /> */}
+          {/* <Route path="/booking/:serviceId" element={<BookingForm />} /> */}
+          <Route path="/services" element={<Filters />} />
+
           <Route path="/my-bookings" element={<MyBookings />} />
           <Route path="/review/:bookingId" element={<ReviewForm />} />
           <Route path="/complaint/:bookingId" element={<ComplaintForm />} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import api, { filtersAPI } from '../utils/api';
+import api, {locationsAPI, filtersAPI } from '../utils/api';
 
 function ServiceForm() {
   const location = useLocation();
@@ -36,6 +36,12 @@ function ServiceForm() {
   
   // Fetch user data, categories, and locations on component mount
   useEffect(() => {
+    if (isEditMode && !id) {
+      console.error('Edit mode is true but no ID is provided.');
+      setError('Invalid service ID. Cannot load the service.');
+      setLoading(false);
+      return;
+    }
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -56,7 +62,7 @@ function ServiceForm() {
         
         // Fetch locations
         try {
-          const filterOptions = await filtersAPI.getFilterOptions();
+          const filterOptions = await locationsAPI.getAllLocations();
           if (filterOptions && filterOptions.locations && filterOptions.locations.length > 0) {
             setLocations(filterOptions.locations);
             console.log("Locations loaded from API:", filterOptions.locations);
@@ -140,6 +146,8 @@ function ServiceForm() {
       
       if (isEditMode) {
         // If id exists, update the existing service
+        console.log("Submitting service data:", serviceData);
+
         await api.put(`/services/${id}`, serviceData);
         alert('Service updated successfully!');
       } else {
@@ -278,8 +286,8 @@ function ServiceForm() {
             className="form-control"
           >
             <option value="">Select a Location</option>
-            {locations.map((location, index) => (
-              <option key={index} value={location}>
+            {locations.map(location => (
+              <option key={location} value={location}>
                 {location}
               </option>
             ))}
