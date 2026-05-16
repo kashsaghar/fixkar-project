@@ -21,6 +21,9 @@ router.delete("/:id", auth, serviceController.deleteService)
 // GET services by provider
 router.get("/provider/me", auth, serviceController.getProviderServices)
 
+router.get("/provider/:id", auth, serviceController.getServiceProvider)
+
+
 // PATCH only service availability
 router.patch("/:id/availability", auth, serviceController.updateServiceAvailability)
 

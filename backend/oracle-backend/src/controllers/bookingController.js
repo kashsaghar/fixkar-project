@@ -86,6 +86,10 @@ const createBooking = async (req, res) => {
 
   const { service_id, booking_date, notes } = req.body
 
+  if (!service_id || !booking_date) {
+    return res.status(400).json({ message: "service_id and booking_date are required" })
+  }
+
   try {
     // Check service availability
     const isAvailable = await bookingModel.checkServiceAvailability(service_id)
@@ -110,11 +114,11 @@ const createBooking = async (req, res) => {
 const updateBookingStatus = async (req, res) => {
   const { status } = req.body
 
-  // Validate status
-  const validStatuses = ["pending", "confirmed", "completed", "cancelled"]
+  const validStatuses = ["pending", "confirmed", "completed", "cancelled", "accepted", "in_progress"]
   if (!validStatuses.includes(status)) {
     return res.status(400).json({ message: "Invalid status" })
   }
+
 
   try {
     // Get authorization info

@@ -13,6 +13,9 @@ const categoryRoutes = require("./routes/categoryRoutes")
 const filtersRoutes = require("./routes/filterRoutes")
 const contactRoutes = require("./routes/contactRoutes")
 const locationsRoutes = require("./routes/locationRoutes")
+const adminRoutes = require("./routes/adminRoutes")
+const oracledb = require("oracledb")
+
 
 // Middleware
 app.use(cors())
@@ -28,6 +31,7 @@ app.use("/api/categories", categoryRoutes)
 app.use("/api/filters", filtersRoutes)
 app.use("/api/contact", contactRoutes)
 app.use("/api/locations", locationsRoutes)
+app.use("/api/admin", adminRoutes)
 
 
 const initializeDatabase = async () => {

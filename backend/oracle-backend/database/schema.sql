@@ -38,7 +38,7 @@ CREATE TABLE bookings (
   user_id NUMBER NOT NULL,
   service_id NUMBER NOT NULL,
   booking_date TIMESTAMP NOT NULL,
-  status VARCHAR2(20) NOT NULL CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+  status VARCHAR2(20) NOT NULL CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled', 'in_progress')),
   notes VARCHAR2(500),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(user_id),
@@ -50,9 +50,18 @@ CREATE TABLE reviews (
   review_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   booking_id NUMBER NOT NULL UNIQUE,
   rating NUMBER(2,1) NOT NULL CHECK (rating BETWEEN 1 AND 5),
-  comment VARCHAR2(500),
+  comments VARCHAR2(500),
   review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (booking_id) REFERENCES bookings(booking_id)
+  FOREIGN KEY (booking_id) REFERENCES BOOKINGS(booking_id)
+);
+
+--messages table
+CREATE TABLE messages (
+  message_id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name       VARCHAR2(100) NOT NULL,
+  email      VARCHAR2(200) NOT NULL,
+  message    VARCHAR2(2000) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Complaints Table

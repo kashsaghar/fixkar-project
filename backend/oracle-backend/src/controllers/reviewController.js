@@ -3,12 +3,12 @@ const reviewModel = require("../models/reviewModel")
 // Get reviews for a service
 const getServiceReviews = async (req, res) => {
   try {
-    const reviewRows = await reviewModel.getReviewsByServiceId(req.params.serviceId)
+    const reviewRows = await reviewModel.getServiceReviews(req.params.serviceId)
 
     const reviews = reviewRows.map((row) => ({
       review_id: row[0],
       rating: row[1],
-      comment: row[2],
+      comments: row[2],
       review_date: row[3],
       user_name: row[4],
     }))
@@ -22,11 +22,8 @@ const getServiceReviews = async (req, res) => {
 
 // Create review
 const createReview = async (req, res) => {
-  if (req.user.role !== "seeker") {
-    return res.status(403).json({ message: "Only customers can leave reviews" })
-  }
-
-  const { booking_id, rating, comment } = req.body
+  const { booking_id, rating, comment, comments } = req.body
+  const commentText = comment || comments
 
   try {
     // Check if booking exists and belongs to user
@@ -36,10 +33,10 @@ const createReview = async (req, res) => {
     }
 
     const bookingStatus = bookingRow[0]
-    const bookingUserId = bookingRow[1]
+    const bookingSeekerUserId = bookingRow[1]
 
-    // Check authorization
-    if (req.user.id !== bookingUserId) {
+    // Check authorization - seeker can review
+    if (req.user.id !== bookingSeekerUserId) {
       return res.status(403).json({ message: "Not authorized to review this booking" })
     }
 
@@ -54,11 +51,10 @@ const createReview = async (req, res) => {
     }
 
     // Create review
-    const reviewId = await reviewModel.createReview(booking_id, rating, comment)
+    await reviewModel.createReview(booking_id, rating, commentText)
 
     res.status(201).json({
       message: "Review submitted successfully",
-      review_id: reviewId,
     })
   } catch (err) {
     console.error(err.message)

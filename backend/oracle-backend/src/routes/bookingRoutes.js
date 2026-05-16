@@ -3,8 +3,12 @@ const router = express.Router()
 const bookingController = require("../controllers/bookingController")
 const auth = require("../middleware/auth")
 
-// GET all bookings for current user
-router.get("/me", auth, bookingController.getUserBookings)
+
+// GET all bookings for current user (seekers)
+router.get("/my-bookings", auth, bookingController.getUserBookings)
+
+// GET all bookings for provider
+router.get("/provider-bookings", auth, bookingController.getUserBookings)
 
 // GET booking by ID
 router.get("/:id", auth, bookingController.getBooking)

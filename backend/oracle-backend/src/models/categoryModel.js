@@ -14,6 +14,21 @@ const getAllCategories = async () => {
   }
 }
 
+const getCategoryById = async (category_id) => {
+  const conn = await connect()
+  try {
+    const result = await conn.execute(`SELECT category_id, name, description FROM categories where category_id = :id
+   `,
+      [category_id],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
+    return result.rows
+  } finally {
+    await conn.close()
+  }
+}
+
 module.exports = {
   getAllCategories,
+  getCategoryById,
 }

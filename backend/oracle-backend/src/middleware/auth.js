@@ -1,10 +1,18 @@
 const jwt = require('jsonwebtoken');
 const oracledb = require('oracledb');
+  
+module.exports = function (req, res, next) {
+  // token can be in Authorization header as "Bearer <token>"
+  const authHeader = req.header('Authorization') || req.header('authorization');
+  let token = null;
 
-
-module.exports = function(req, res, next) {
-  // Get token from header
-  const token = req.header('x-auth-token');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.header('x-auth-token')) {
+    token = req.header('x-auth-token');
+  } else if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
 
   // Check if no token
   if (!token) {

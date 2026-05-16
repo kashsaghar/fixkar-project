@@ -56,7 +56,7 @@ const createService = async (title, description, price, durationMinutes, categor
         description,
         price,
         durationMinutes,
-        1,
+        0,
         providerId,
         categoryId,
         location,
@@ -138,6 +138,24 @@ const getServicesByProviderId = async (providerId) => {
     await conn.close()
   }
 }
+const getProviderBySId = async (serviceId) => {
+  const conn = await connect()
+  try {
+    const result = await conn.execute(
+      `
+      SELECT u.user_id, u.name , u.email, u.phone, u.role
+      FROM users u
+      JOIN services s ON u.user_id = s.provider_id
+      WHERE s.service_id = :1
+      ORDER BY s.created_at DESC
+    `,
+      [serviceId],
+    )
+    return result.rows
+  } finally {
+    await conn.close()
+  }
+}
 
 // Update service availability
 const updateServiceAvailability = async (serviceId, isAvailable) => {
@@ -161,5 +179,6 @@ module.exports = {
   updateService,
   deleteService,
   getServicesByProviderId,
+  getProviderBySId,
   updateServiceAvailability,
 }

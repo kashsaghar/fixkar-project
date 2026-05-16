@@ -74,14 +74,24 @@ const getBookingById = async (bookingId) => {
 const createBooking = async (userId, serviceId, bookingDate, notes) => {
   const conn = await connect()
   try {
+    const binds = {
+      user_id: userId,
+      service_id: serviceId,
+      booking_date: new Date(bookingDate),
+      status: "pending",
+      notes: notes || null,
+      booking_id: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+    }
+
     const result = await conn.execute(
-      `INSERT INTO bookings (user_id, service_id, booking_date, status, notes) 
-       VALUES (:1, :2, :3, :4, :5)
-       RETURNING booking_id INTO :6`,
-      [userId, serviceId, new Date(bookingDate), "pending", notes, { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }],
+      `INSERT INTO bookings (user_id, service_id, booking_date, status, notes)
+       VALUES (:user_id, :service_id, :booking_date, :status, :notes)
+       RETURNING booking_id INTO :booking_id`,
+      binds,
       { autoCommit: true },
     )
-    return result.outBinds[0][0]
+
+    return result.outBinds.booking_id[0]
   } finally {
     await conn.close()
   }

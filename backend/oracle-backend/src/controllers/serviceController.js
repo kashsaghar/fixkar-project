@@ -11,7 +11,7 @@ const getAllServices = async (req, res) => {
       description: row[2],
       price: row[3],
       duration_minutes: row[4],
-      is_available: row[5] === 1,
+      is_available: row[5],
       provider_id: row[6],
       category_id: row[7],
       created_at: row[8],
@@ -40,7 +40,7 @@ const getService = async (req, res) => {
       description: serviceRow[2],
       price: serviceRow[3],
       duration_minutes: serviceRow[4],
-      is_available: serviceRow[5] === 1,
+      is_available: serviceRow[5],
       provider_id: serviceRow[6],
       category_id: serviceRow[7],
       created_at: serviceRow[8],
@@ -157,7 +157,7 @@ const getProviderServices = async (req, res) => {
       description: row[2],
       price: row[3],
       duration_minutes: row[4],
-      is_available: row[5] === 1,
+      is_available: row[5],
       provider_id: row[6],
       category_id: row[7],
       created_at: row[8],
@@ -170,6 +170,35 @@ const getProviderServices = async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 }
+
+const getServiceProvider = async (req, res) => {
+  try {
+    const serviceId = req.params.id
+
+    const providerRows = await serviceModel.getProviderBySId(serviceId)
+
+    if (providerRows.length === 0) {
+      return res.status(404).json({ message: "Provider not found for this service" })
+    }
+
+    const row = providerRows[0]
+
+    const provider = {
+      user_id: row[0],
+      name: row[1],
+      email: row[2],
+      phone: row[3],
+      role: row[4],
+    }
+
+    res.json(provider)
+
+  } catch (err) {
+    console.error("Error fetching provider:", err)
+    res.status(500).json({ error: err.message })
+  }
+}
+
 
 // Update service availability
 const updateServiceAvailability = async (req, res) => {
@@ -206,5 +235,6 @@ module.exports = {
   updateService,
   deleteService,
   getProviderServices,
+  getServiceProvider,
   updateServiceAvailability,
 }

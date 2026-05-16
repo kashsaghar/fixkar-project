@@ -2,12 +2,12 @@ const connect = require("../config/db")
 const oracledb = require("oracledb")
 
 // Get reviews for a service
-const getReviewsByServiceId = async (serviceId) => {
+const getServiceReviews = async (serviceId) => {
   const conn = await connect()
   try {
     const result = await conn.execute(
       `
-      SELECT r.review_id, r.rating, r.comment, r.review_date,
+      SELECT r.review_id, r.rating, r.comments, r.review_date,
              u.name as user_name
       FROM reviews r
       JOIN bookings b ON r.booking_id = b.booking_id
@@ -50,25 +50,24 @@ const getBookingForReview = async (bookingId) => {
   }
 }
 
-// Create review
-const createReview = async (bookingId, rating, comment) => {
+const createReview = async (bookingId, rating, comments) => {
   const conn = await connect()
   try {
-    const result = await conn.execute(
-      `INSERT INTO reviews (booking_id, rating, comment, review_date) 
-       VALUES (:1, :2, :3, :4)
-       RETURNING review_id INTO :5`,
-      [bookingId, rating, comment, new Date(), { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }],
+    await conn.execute(
+      `INSERT INTO reviews (booking_id, rating, comments) 
+       VALUES (:1, :2, :3)`,
+      [bookingId, rating, comments],
       { autoCommit: true },
     )
-    return result.outBinds[0][0]
+    // Return booking_id to confirm creation (review_id will be auto-generated)
+    return bookingId
   } finally {
     await conn.close()
   }
 }
 
 module.exports = {
-  getReviewsByServiceId,
+  getServiceReviews,
   reviewExists,
   getBookingForReview,
   createReview,
