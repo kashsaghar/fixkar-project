@@ -118,7 +118,6 @@ function ReviewForm() {
       <div className="service-details">
         <h2>{booking.service_title}</h2>
         <p><strong>Provider:</strong> {booking.provider_name}</p>
-        <p><strong>Date:</strong> {new Date(booking.scheduled_time).toLocaleDateString()}</p>
       </div>
       
       <form className="review-form" onSubmit={handleSubmit}>

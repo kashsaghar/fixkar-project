@@ -43,8 +43,9 @@ export const authAPI = {
   },
 
   logout: async () => {
-    // Implement logout logic here (e.g., clear tokens)
-    return Promise.resolve()
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');   
+    Promise.resolve()
   },
   
   getCurrentUser: async () => {
@@ -76,6 +77,27 @@ export const servicesAPI = {
       throw error.response?.data || { message: 'Server error' };
     }
   },
+
+   getCategoryById: async (id) => {
+    try {
+      const response = await api.get(`/categories/${id}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: 'Server error' };
+    }
+  },
+
+  
+  getProviderServices: async (serviceId) => {
+    try{
+      const response = await api.get(`/services/provider/${serviceId}`);
+      return response.data;
+     }
+     catch (error) {
+      throw error.response?.data || { message: 'Server error' };
+    }
+  },
+
   
   createService: async (serviceData) => {
     try {
@@ -104,16 +126,162 @@ export const servicesAPI = {
     }
   },
   
-  getProviderServices: async () => {
+};
+
+// Admin API calls
+export const adminAPI = {
+  // Dashboard
+  getDashboardStats: async () => {
     try {
-      const response = await api.get('/services/provider/me');
+      const response = await api.get("/admin/dashboard");
       return response.data;
     } catch (error) {
-      throw error.response?.data || { message: 'Server error' };
+      throw error.response?.data || { message: "Server error" };
     }
   },
 
+  // User Management
+  getUsers: async (limit = 50, offset = 0) => {
+    try {
+      const response = await api.get(`/admin/users?limit=${limit}&offset=${offset}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  suspendUser: async (userId) => {
+    try {
+      const response = await api.put(`/admin/users/${userId}/suspend`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  activateUser: async (userId) => {
+    try {
+      const response = await api.put(`/admin/users/${userId}/activate`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  deleteUser: async (userId) => {
+    try {
+      const response = await api.delete(`/admin/users/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  updateUserRole: async (userId, role) => {
+    try {
+      const response = await api.put(`/admin/users/${userId}/role`, { role });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  // Service Management
+  getPendingServices: async () => {
+    try {
+      const response = await api.get("/admin/services/pending");
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  getAllServices: async (limit = 50, offset = 0) => {
+    try {
+      const response = await api.get(`/admin/services?limit=${limit}&offset=${offset}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  approveService: async (serviceId) => {
+    try {
+      const response = await api.put(`/admin/services/${serviceId}/approve`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  rejectService: async (serviceId) => {
+    try {
+      const response = await api.put(`/admin/services/${serviceId}/reject`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  // Booking Management
+  getAllBookings: async (limit = 50, offset = 0) => {
+    try {
+      const response = await api.get(`/admin/bookings?limit=${limit}&offset=${offset}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  updateBookingStatus: async (bookingId, status) => {
+    try {
+      const response = await api.put(`/admin/bookings/${bookingId}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  // Complaint Management
+  getAllComplaints: async (limit = 50, offset = 0) => {
+    try {
+      const response = await api.get(`/admin/complaints?limit=${limit}&offset=${offset}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  updateComplaintStatus: async (complaintId, status) => {
+    try {
+      const response = await api.put(`/admin/complaints/${complaintId}/status`, { status });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  // Review Management
+  getAllReviews: async (limit = 50, offset = 0) => {
+    try {
+      const response = await api.get(`/admin/reviews?limit=${limit}&offset=${offset}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
+
+  deleteReview: async (reviewId) => {
+    try {
+      const response = await api.delete(`/admin/reviews/${reviewId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || { message: "Server error" };
+    }
+  },
 };
+
+
 // Filters API calls
 export const filtersAPI = {
   getFilteredServices: async (filters) => {
@@ -184,9 +352,9 @@ export const locationsAPI = {
 
 // Bookings API calls
 export const bookingsAPI = {
-  getUserBookings: async () => {
+  getUserBookings: async (endpoint = "/bookings/me") => {
     try {
-      const response = await api.get('/bookings/me');
+      const response = await api.get(endpoint);
       return response.data;
     } catch (error) {
       throw error.response?.data || { message: 'Server error' };
@@ -273,8 +441,20 @@ export const complaintsAPI = {
     } catch (error) {
       throw error.response?.data || { message: 'Server error' };
     }
+  },
+
+getBookingDetails: async (bookingId) => {
+    try {
+      console.log("[v0] Fetching booking details for complaint:", bookingId)
+      const response = await api.get(`/bookings/${bookingId}`)
+      return response.data
+    } catch (error) {
+      console.error("[v0] Failed to fetch booking:", error)
+      throw error.response?.data || { message: "Server error" }
+    }
   }
 };
+
 
 // Categories API calls
 export const categoriesAPI = {

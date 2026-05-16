@@ -101,7 +101,7 @@ function ServiceForm() {
               description: serviceData.description,
               price: serviceData.price,
               duration_minutes: serviceData.duration_minutes,
-              is_available: serviceData.is_available,
+              is_available: 0,
               location: serviceData.location || ''
             });
           } catch (serviceErr) {
@@ -264,16 +264,6 @@ function ServiceForm() {
           />
         </div>
         
-        <div className="form-group checkbox-group">
-          <input
-            type="checkbox"
-            id="is_available"
-            name="is_available"
-            checked={formData.is_available}
-            onChange={handleChange}
-          />
-          <label htmlFor="is_available">Service is currently available</label>
-        </div>
 
         <div className="form-group">
           <label htmlFor="location">Location:</label>

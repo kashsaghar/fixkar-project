@@ -45,14 +45,19 @@ function ProtectedRoute({ children, requiredRole = null }) {
   
   if (!isAuthenticated) {
     // Redirect to login page and save the intended destination
-    return <Navigate to="/auth" state={{ from: location.pathname }} replace />;
+    return <Navigate to="/auth" state={{ from: location.pathname, requiredRole }} replace />;
   }
   
   // Check if a specific role is required
-  if (requiredRole && user.role !== requiredRole && user.role !== 'admin') {
-    return <Navigate to="/unauthorized" replace />;
+  if (requiredRole && user.role !== requiredRole) {
+  return (
+      <Navigate
+        to="/unauthorized"
+        state={{ requiredRole }}
+        replace
+      />
+    );
   }
-  
   return children;
 }
 

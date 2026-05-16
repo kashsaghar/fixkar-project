@@ -72,7 +72,7 @@ function MyServices() {
     }
     
     try {
-      await api.delete(`services/:id`);
+      await api.delete(`services/${serviceId}`);
       
       // Remove the service from the state
       setServices(services.filter(service => service.service_id !== serviceId));
@@ -106,23 +106,23 @@ function MyServices() {
     <section className="services-page">
       <div className="services-header">
         <h1>My Services</h1>
-        <Link to="/add-service" className="btn-primary">Add New Service</Link>
       </div>
       
       {services.length === 0 ? (
         <div className="no-services">
-          <p>You haven't added any services yet.</p>
+          <p className='not-added'>You haven't added any services yet.</p>
           <Link to="/add-service" className="btn-primary">Add Your First Service</Link>
         </div>
       ) : (
         <div className="services-list">
+          <Link to="/add-service" className="btn-primary">Add New Service</Link>
           {services.map(service => (
             <div key={service.service_id} className="service-card">
               <h3>{service.title}</h3>
               
               <div className="service-card-details">
                 <p><strong>Category:</strong> {service.category_name}</p>
-                <p><strong>Price:</strong> ₹{service.price}</p>
+                <p><strong>Price:</strong> pkr {service.price}</p>
                 <p><strong>Duration:</strong> {service.duration_minutes} minutes</p>
                 <p>
                   <strong>Status:</strong> 

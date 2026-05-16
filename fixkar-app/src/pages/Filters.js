@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { servicesAPI, filtersAPI, locationsAPI, categoriesAPI, mockServices, mockCategories, useMockData } from "../utils/api"
-import api from '../utils/api';
+import { servicesAPI, categoriesAPI, mockServices, mockCategories, useMockData } from "../utils/api"
+import {bookingsAPI} from "../utils/api" // Import bookingsAPI
+import api from "../utils/api" // Import api for user fetching
 
 function Filters() {
   const location = useLocation()
@@ -124,61 +125,57 @@ function Filters() {
     updateActiveFilters()
   }, [filters, providers, sortBy])
 
-
-   // Handle booking when "Book Now" is clicked
-   const handleBookNow = async (serviceId) => {
+  // Handle booking when "Book Now" is clicked
+  const handleBookNow = async (serviceId) => {
     try {
-      // Check if user is logged in
       const token = localStorage.getItem("token")
       if (!token) {
-        // Redirect to auth page if not logged in
         navigate("/auth")
         return
       }
 
-      // Show booking in progress
       setBookingInProgress(true)
+      console.log("[v0] Creating booking with serviceId:", serviceId)
 
-      // IMPORTANT: Using a timeout to simulate API call
-      // In a real app, this would be an actual API call
-      setTimeout(() => {
-        try {
-          // Create a mock booking response
-          const mockBookingResponse = {
-            booking_id: `booking-${Date.now()}`,
-            service_id: serviceId,
-            status: "pending",
-            scheduled_time: new Date().toISOString(),
-            address: "User's address",
-            total_amount: providers.find((p) => p.service_id === serviceId)?.price || 1000,
-            provider_name: providers.find((p) => p.service_id === serviceId)?.provider_name || "Service Provider",
-            service_title: providers.find((p) => p.service_id === serviceId)?.title || "Service",
-            notes: "",
-          }
+      let userId = null
+      try {
+        const userResponse = await api.get("/auth/user")
+        userId = userResponse.data?.user_id || userResponse.data?.id
+        console.log("[v0] User from API:", userResponse.data)
+      } catch (apiErr) {
+        console.error("[v0] Error fetching user from API:", apiErr)
+        // Fallback: try to get user_id from localStorage with different possible key names
+        const userInfo = JSON.parse(localStorage.getItem("user") || "{}")
+        userId = userInfo?.user_id || userInfo?.id || userInfo?.userId
+      }
 
-          // Store the new booking ID in localStorage to highlight it on the bookings page
-          localStorage.setItem("newBookingId", mockBookingResponse.booking_id)
+      if (!userId) {
+        setError("User information not found. Please log in again.")
+        setBookingInProgress(false)
+        return
+      }
 
-          // Also store the booking data for display on the MyBookings page
-          // This is a workaround since we don't have a real backend
-          const existingBookings = JSON.parse(localStorage.getItem("mockBookings") || "[]")
-          existingBookings.push(mockBookingResponse)
-          localStorage.setItem("mockBookings", JSON.stringify(existingBookings))
+      const bookingData = {
+        service_id: serviceId,
+        user_id: userId,
+        booking_date: new Date().toISOString(),
+        status: "pending",
+        notes: "",
+      }
 
-          // Reset booking in progress
-          setBookingInProgress(false)
+      console.log("[v0] Sending booking to API:", bookingData)
+      const response = await bookingsAPI.createBooking(bookingData)
+      console.log("[v0] Booking created successfully:", response)
 
-          // Redirect to the bookings page
-          navigate("/my-bookings")
-        } catch (innerErr) {
-          console.error("Error in booking process:", innerErr)
-          setError("An error occurred during booking. Please try again.")
-          setBookingInProgress(false)
-        }
-      }, 1000) // Simulate a 1-second API call
+      // Store the new booking ID to highlight it on the bookings page
+      localStorage.setItem("newBookingId", response.booking_id)
+
+      setBookingInProgress(false)
+      alert("Booking created successfully!")
+      navigate("/my-bookings")
     } catch (err) {
-      console.error("Error creating booking:", err)
-      setError("An error occurred while creating your booking.")
+      console.error("[v0] Error creating booking:", err)
+      setError(err.message || "An error occurred while creating your booking.")
       setBookingInProgress(false)
     }
   }
@@ -688,7 +685,7 @@ function Filters() {
                     )}
 
                     <div className="provider-actions">
-                    <button
+                      <button
                         className="view-details"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -719,8 +716,8 @@ function Filters() {
         </div>
       </div>
 
-       {/* Booking in progress overlay */}
-       {bookingInProgress && (
+      {/* Booking in progress overlay */}
+      {bookingInProgress && (
         <div className="booking-overlay">
           <div className="booking-spinner">
             <div className="spinner"></div>

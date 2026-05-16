@@ -1,75 +1,94 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { authAPI } from '../utils/api';
-
+// src/pages/Auth.jsx
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { authAPI } from "../utils/api";
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const from = location.state?.from || '/';
+  const from = location.state?.from || "/";
 
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: 'seeker' // Default role
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "seeker",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // If user already logged in, redirect away from auth page
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) navigate("/");
+  }, [navigate]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const toggleForm = () => {
-    setIsLogin(!isLogin);
-    setError('');
+    setIsLogin((s) => !s);
+    setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       if (isLogin) {
-        // Login
-        const { email, password, role } = formData;
-        const data = await authAPI.login(email, password, role);
-        
-        // Save token and user data
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect based on user role
-        if (data.user.role === 'provider') {
-          navigate('/provider-dashboard');
+        // LOGIN: only email + password
+        const { email, password } = formData;
+        const data = await authAPI.login(email, password);
+
+        // data expected: { token, user: { id, name, email, role } }
+        if (!data || !data.token) throw new Error("Invalid server response");
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // redirect by role or return path
+        if (data.user?.role === "admin") {
+          navigate("/admin");
         } else {
-          navigate('/');
+          // if user was trying to access protected page, go back to it
+          navigate(from);
         }
       } else {
-        // Register
-        const data = await authAPI.register(formData);
-        
-        // Save token and user data
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect based on user role
-        if (data.user.role === 'provider') {
-          navigate('/provider-dashboard');
-        } else {
-          navigate('/');
+        // REGISTER: only seeker/provider allowed from UI
+        if (formData.role === "admin") {
+          setError("Admin account cannot be created from registration.");
+          setLoading(false);
+          return;
         }
+
+        const data = await authAPI.register({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          role: formData.role,
+        });
+
+        if (!data || !data.token) throw new Error("Invalid server response");
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // After register, redirect to homepage (never admin)
+        navigate("/");
       }
     } catch (err) {
-      setError(err.message || 'An error occurred');
+      // err may be object from backend, support both shapes
+      const msg =
+        err?.message ||
+        (err?.message ? err.message : err?.message ?? JSON.stringify(err));
+      setError(err?.message || err?.error || "An error occurred");
+      console.error("Auth error:", err);
     } finally {
       setLoading(false);
     }
@@ -78,42 +97,48 @@ const Auth = () => {
   return (
     <div className="auth-container">
       <div className="auth-form-container">
-        <h2>{isLogin ? 'Login' : 'Register'}</h2>
-        
-        {error && <div className="error-message">{error}</div>}
-        
+        <h2>{isLogin ? "Login" : "Register"}</h2>
+
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           {!isLogin && (
             <>
               <div className="form-group">
                 <label>Name</label>
                 <input
-                  type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  required={!isLogin}
+                  required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Phone</label>
                 <input
-                  type="tel"
                   name="phone"
+                  type="tel"
+                  pattern="03[0-9]{9}"
+                  placeholder="e.g. 03001234567"
                   value={formData.phone}
                   onChange={handleChange}
-                  required={!isLogin}
+                  required
                 />
               </div>
-              
+
               <div className="form-group">
                 <label>Role</label>
                 <select
+                  className="role"
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  required={!isLogin}
+                  required
                 >
                   <option value="seeker">Service Seeker</option>
                   <option value="provider">Service Provider</option>
@@ -121,7 +146,7 @@ const Auth = () => {
               </div>
             </>
           )}
-          
+
           <div className="form-group">
             <label>Email</label>
             <input
@@ -132,7 +157,7 @@ const Auth = () => {
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label>Password</label>
             <input
@@ -143,17 +168,17 @@ const Auth = () => {
               required
             />
           </div>
-          
+
           <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Processing...' : isLogin ? 'Login' : 'Register'}
+            {loading ? "Processing..." : isLogin ? "Login" : "Register"}
           </button>
         </form>
-        
+
         <p className="toggle-form">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <span onClick={toggleForm}>
-            {isLogin ? 'Register' : 'Login'}
-          </span>
+          <button type="button" onClick={toggleForm} className="link-like">
+            {isLogin ? "Register" : "Login"}
+          </button>
         </p>
       </div>
     </div>

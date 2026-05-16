@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { servicesAPI } from "../utils/api";
+import providerImage from '../assets/images-removebg-preview.png'
 
 function ServiceDetails() {
   const { serviceId } = useParams();
@@ -11,7 +13,10 @@ function ServiceDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
-  
+  const [provider, setProvider] = useState(null);
+  const [categoryName, setCategoryName] = useState(null);
+  const [categoryId, setCategoryId] = useState(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,7 +33,14 @@ function ServiceDetails() {
         
         // Fetch service details
         const serviceResponse = await api.get(`/services/${serviceId}`);
+        console.log("SERVICE RESPONSE:", serviceResponse.data);
         setService(serviceResponse.data);
+        setCategoryId(serviceResponse.data.category_id);
+
+
+        //provider info through service id
+        const providerResponse = await api.get(`/services/provider/${serviceId}`);
+        setProvider(providerResponse.data); 
         
         // Fetch reviews for this service
         const reviewsResponse = await api.get(`/reviews/service/${serviceId}`);
@@ -44,6 +56,21 @@ function ServiceDetails() {
     
     fetchData();
   }, [serviceId]);
+
+  useEffect(() => {
+  const fetchCategory = async () => {
+    if (!categoryId) return;
+    try {
+      const data = await servicesAPI.getCategoryById(categoryId);
+      setCategoryName(data.name);   // depends on what your backend returns
+    } catch (err) {
+      console.error("Failed to load category:", err);
+    }
+  };
+
+  fetchCategory();
+}, [categoryId]);
+
   
   const calculateAverageRating = () => {
     if (reviews.length === 0) return 0;
@@ -99,12 +126,12 @@ function ServiceDetails() {
         <div className="service-provider-info">
           <div className="provider-avatar">
             <img 
-              src={service.provider_picture || "/placeholder.svg"} 
-              alt={service.provider_name} 
+              src={providerImage}    
+              alt={provider?.name || "Provider"} 
             />
           </div>
           <div className="provider-details">
-            <h3>{service.provider_name}</h3>
+            <h3>{provider?.name}</h3>
             <p>Service Provider</p>
           </div>
         </div>
@@ -117,7 +144,7 @@ function ServiceDetails() {
         <div className="service-meta">
           <div className="meta-item">
             <h4>Price</h4>
-            <p>₹{service.price}</p>
+            <p>pkr {service.price}</p>
           </div>
           <div className="meta-item">
             <h4>Duration</h4>
@@ -125,7 +152,7 @@ function ServiceDetails() {
           </div>
           <div className="meta-item">
             <h4>Category</h4>
-            <p>{service.category_name}</p>
+            <p>{categoryName}</p>
           </div>
           <div className="meta-item">
             <h4>Rating</h4>
@@ -164,12 +191,12 @@ function ServiceDetails() {
             reviews.map(review => (
               <div key={review.review_id} className="review-item">
                 <div className="review-item-header">
-                  <h4>{review.user_name}</h4>
+                  <h4> <u> {review.user_name} </u></h4>
                   <div className="review-stars">
                     {renderStars(review.rating)}
                   </div>
                 </div>
-                <p>{review.comment}</p>
+                <p className='review-comment'>{review.comments}</p>
                 <div className="review-date">
                   {new Date(review.review_date).toLocaleDateString()}
                 </div>

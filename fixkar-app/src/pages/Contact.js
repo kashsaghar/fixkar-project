@@ -28,7 +28,7 @@ function Contact() {
 
     try{
       const response = await contactAPI.createMessage(formData);
-    setStatus('Message sent successfully!');
+    setStatus(response.message);
     setFormData({
       name: '',
       email: '',
@@ -36,7 +36,7 @@ function Contact() {
     });
   } catch (err) {
     console.error('Error submitting message:', err);
-    setError(err.response?.data?.message || 'Failed to submit message');
+    setError(err.message || 'Failed to submit message');
   } finally {
     setLoading(false);
   }
@@ -77,6 +77,11 @@ function Contact() {
           placeholder="Your Message" 
           required
         ></textarea>
+
+        
+  {status && <p style={{ color: "green" }}>{status}</p>}
+  {error && <p style={{ color: "red" }}>{error}</p>}
+
         
         <button type="submit">Send</button>
       </form>

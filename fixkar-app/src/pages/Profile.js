@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LogoutButton from '../components/LogoutButton';
+import api from '../utils/api';
+
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -14,31 +16,21 @@ function Profile() {
       navigate('/auth');
       return;
     }
-    
-    // Fetch user data
-    // This is a placeholder - replace with your actual API call
-    const fetchUserData = async () => {
-      try {
-        // Simulating API call
-        // In a real app, you would fetch from your backend
-        const userData = JSON.parse(localStorage.getItem('user')) || {
-          name: 'John Doe',
-          email: 'john.doe@example.com',
-          phone: '+1 (555) 123-4567',
-          address: '123 Main St, City, Country',
-          joinDate: 'January 2023'
-        };
-        
-        setUser(userData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        setLoading(false);
-      }
-    };
-    
-    fetchUserData();
   }, [navigate]);
+
+    useEffect(() => {
+  const fetchUser = async () => {
+    try {
+      const response = await api.get('/auth/user'); 
+      setUser(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false); 
+    }
+  };
+  fetchUser();
+}, []);
   
   if (loading) {
     return <div className="loading">Loading...</div>;
@@ -58,9 +50,8 @@ function Profile() {
       
       <div className="profile-content">
         <div className="profile-avatar">
-          {/* If you have user avatar, use it here */}
           <div className="avatar-placeholder">
-            {user?.name?.charAt(0) || 'U'}
+            {user.name?.charAt(0) || 'U'}
           </div>
         </div>
         
@@ -69,23 +60,19 @@ function Profile() {
             <h3>Personal Information</h3>
             <div className="detail-item">
               <span className="detail-label">Name:</span>
-              <span className="detail-value">{user?.name}</span>
+              <span className="detail-value">{user.name}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Email:</span>
-              <span className="detail-value">{user?.email}</span>
+              <span className="detail-value">{user.email}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Phone:</span>
-              <span className="detail-value">{user?.phone}</span>
+              <span className="detail-value">{user.phone}</span>
             </div>
             <div className="detail-item">
-              <span className="detail-label">Address:</span>
-              <span className="detail-value">{user?.address}</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Member Since:</span>
-              <span className="detail-value">{user?.joinDate}</span>
+              <span className="detail-label">Role: </span>
+              <span className="detail-value">{user.role}</span>
             </div>
           </div>
           

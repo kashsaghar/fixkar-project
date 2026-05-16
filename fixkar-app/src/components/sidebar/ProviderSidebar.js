@@ -13,6 +13,10 @@ function ProviderSidebar({ toggleSidebar }) {
             <li>
               <Link to="/my-services" onClick={toggleSidebar}>My Services</Link>
             </li>
+
+            <li>
+              <Link to="/my-bookings" onClick={toggleSidebar}>My Bookings</Link>
+            </li>
             
           </ul>
   );

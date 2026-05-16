@@ -1,21 +1,19 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../utils/api';
+
 
 function LogoutButton({ className }) {
   const navigate = useNavigate();
   
-  const handleLogout = () => {
-    // Clear authentication token
-    localStorage.removeItem('token');
-    
-    // You might also want to clear any other user-related data
-    localStorage.removeItem('user');
-    
-    // Redirect to home page
-    navigate('/');
-    
-    // Optional: Show a logout success message
-    alert('You have been successfully logged out');
+  const handleLogout = async () => {
+    try {
+      await authAPI.logout(); 
+      navigate('/auth');      
+      alert('You have been successfully logged out');
+    } catch (err) {
+      console.error('Logout failed:', err);
+    }
   };
   
   return (
